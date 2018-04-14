@@ -13,11 +13,6 @@ ExtractionCaffeNetwork::~ExtractionCaffeNetwork()
     }
 }
 
-void ExtractionCaffeNetwork::run()
-{
-    exec();
-}
-
 bool ExtractionCaffeNetwork::caffePairCompare(const std::pair<float, int>& lhs, const std::pair<float, int>& rhs)
 {
     return lhs.first > rhs.first;
@@ -153,8 +148,6 @@ std::vector<float> ExtractionCaffeNetwork::predict(const cv::Mat& img)
     output_layer = this->net_->output_blobs()[0];
     begin = output_layer->cpu_data();
     end = begin + output_layer->channels();
-
-    //delete input_layer;
 
     return std::vector<float>(begin, end);
 }
@@ -305,8 +298,6 @@ std::vector<float> ExtractionCaffeNetwork::predictBatch(const std::vector< cv::M
     output_layer = this->net_->output_blobs()[0];
     begin = output_layer->cpu_data();
     end = begin + output_layer->channels()*imgs.size();
-
-    //delete input_layer;
 
     return std::vector<float>(begin, end);
 }

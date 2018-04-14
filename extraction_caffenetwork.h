@@ -55,7 +55,7 @@ using namespace caffe;
 /* Pair (label, confidence) representing a prediction. */
 typedef std::pair<string, float> Prediction;
 
-class ExtractionCaffeNetwork : public QThread
+class ExtractionCaffeNetwork : public QObject
 {
     Q_OBJECT
 
@@ -84,8 +84,6 @@ private:
     int batchSize;
 
     bool networkLoaded;
-
-    void run();
 
     void setMean(const std::string& mean_file);
     std::vector<float> predict(const cv::Mat& img);
