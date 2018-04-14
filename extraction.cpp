@@ -42,13 +42,17 @@ void Extraction::clean()
     this->durations.isoConverter = 0;
 }
 
-void Extraction::loadInput(const cv::Mat &imgOriginal, const cv::Mat &imgSkeleton, const cv::Mat &imgInvertedSkeleton, const cv::Mat &orientationMap, int fpQuality)
+void Extraction::loadInput(const cv::Mat &imgOriginal, const cv::Mat &imgSkeleton, const cv::Mat &orientationMap, int fpQuality, const cv::Mat &imgInvertedSkeleton)
 {
     this->imgOriginal = imgOriginal;
     this->imgSkeleton = imgSkeleton;
     this->imgInvertedSkeleton = imgInvertedSkeleton;
     this->orientationMap = orientationMap;
     this->fpQuality = fpQuality;
+
+    if (this->imgOriginal.type() != CV_8UC1) this->imgOriginal.convertTo(this->imgOriginal, CV_8UC1);
+    if (this->imgSkeleton.type() != CV_8UC1) this->imgSkeleton.convertTo(this->imgSkeleton, CV_8UC1);
+    if (this->imgInvertedSkeleton.type() != CV_8UC1) this->imgInvertedSkeleton.convertTo(this->imgInvertedSkeleton, CV_8UC1);
 }
 
 void Extraction::setCaffeFiles(CAFFE_FILES extractionFiles)

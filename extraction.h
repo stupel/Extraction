@@ -31,7 +31,7 @@ public:
     Extraction();
 
     //required
-    void loadInput(const cv::Mat &imgOriginal, const cv::Mat &imgSkeleton, const cv::Mat &imgInvertedSkeleton, const cv::Mat &orientationMap, int fpQuality = 100);
+    void loadInput(const cv::Mat &imgOriginal, const cv::Mat &imgSkeleton, const cv::Mat &orientationMap, int fpQuality = 100, const cv::Mat &imgInvertedSkeleton = cv::Mat(0,0,CV_8UC1));
 
     void run();
 
@@ -70,7 +70,7 @@ private:
 
 signals:
     void extractionResultsSignal(EXTRACTION_RESULTS results);
-    void minutiaeVectorDoneSignal(QVector<MINUTIA> checkedMinutiae);
+    void minutiaeVectorDoneSignal(QVector<MINUTIA> minutiae);
     void ISOTemplateDoneSignal(unsigned char * minutiaeISO);
     void extractionDurationsSignal(EXTRACTION_DURATIONS durations);
     void extractionErrorSignal(int errorCode);
