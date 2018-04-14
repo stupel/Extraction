@@ -1,0 +1,12 @@
+#ifndef EXTRACTION_GLOBAL_H
+#define EXTRACTION_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(EXTRACTION_LIBRARY)
+#  define EXTRACTIONSHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define EXTRACTIONSHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // EXTRACTION_GLOBAL_H
