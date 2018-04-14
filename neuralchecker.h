@@ -5,7 +5,7 @@
 #include "extraction_caffenetwork.h"
 
 #define VARBLOCKSTEP 1
-#define VARBLOCKITER 3
+#define VARBLOCKITER 2
 
 class NeuralChecker : public QThread
 {

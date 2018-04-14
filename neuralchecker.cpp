@@ -65,26 +65,28 @@ void NeuralChecker::check()
 
     int i = 0;
 
-    int varBlockIteration = 1;
-    int bestBlock[3];
+    int varBlockIteration = 0;
+    float bestBlock[3] = {0,0,0};
 
     for (std::vector<Prediction> prediction : predictions) {
         if (useVariableBlockSize) {
-            if (varBlockIteration <= VARBLOCKITER) {
-                if (prediction[0].first[0] == 'E') bestBlock[0] += prediction[0].second;
-                else if (prediction[0].first[0] == 'B') bestBlock[1] += prediction[0].second;
-                else bestBlock[2] += prediction[0].second;
-
-                varBlockIteration++;
-            }
-            else {
-                varBlockIteration = 1;
+            if (varBlockIteration > VARBLOCKITER) {
+                varBlockIteration = 0;
 
                 if (bestBlock[0] > bestBlock[1] && bestBlock[0] > bestBlock[2])
                     this->checkedMinutiae.push_back(MINUTIA{QPoint{this->minutiae.at(i).xy.x(), this->minutiae.at(i).xy.y()}, 0, this->minutiae.at(i).angle, 0});
                 else if (bestBlock[1] > bestBlock[0] && bestBlock[1] > bestBlock[2])
                     this->checkedMinutiae.push_back(MINUTIA{QPoint{this->minutiae.at(i).xy.x(), this->minutiae.at(i).xy.y()}, 1, this->minutiae.at(i).angle, 0});
+
+                for (int j = 0; j < 3; j++) bestBlock[j] = 0;
+                i++;
             }
+
+            if (prediction[0].first[0] == 'E') bestBlock[0] += prediction[0].second;
+            else if (prediction[0].first[0] == 'B') bestBlock[1] += prediction[0].second;
+            else bestBlock[2] += prediction[0].second;
+
+            varBlockIteration++;
         }
         else {
             if (prediction[0].first[0] == 'E' /* && prediction[0].second > 0.9999*/) {
@@ -93,8 +95,8 @@ void NeuralChecker::check()
             else if (prediction[0].first[0] == 'B' /* && prediction[0].second > 0.9999*/) {
                 this->checkedMinutiae.push_back(MINUTIA{QPoint{this->minutiae.at(i).xy.x(), this->minutiae.at(i).xy.y()}, 1, this->minutiae.at(i).angle, 0});
             }
+            i++;
         }
-        i++;
     }
 }
 
