@@ -13,6 +13,7 @@ Fingerprint extraction module for DBOX
 2. Include the library and header files to your own application  
 3. Copy the 'core' folder to your root project directory  
   
+  
 **APIs:**  
 ```cpp  
 void loadInput(const cv::Mat &imgOriginal, const cv::Mat &imgSkeleton, const cv::Mat &imgInvertedSkeleton, const cv::Mat &orientationMap, int fpQuality);  
@@ -28,6 +29,7 @@ void setFeatures(bool useOrientationFixer, bool useVariableBlockSize);
   
 void setCaffeFiles(CAFFE_FILES extractionFiles);  
 ``` 
+  
   
 **SIGNALS:**  
 ```cpp  
