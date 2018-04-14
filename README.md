@@ -5,6 +5,7 @@ Fingerprint extraction module for DBOX
 - OpenCV 3.4.1 (https://github.com/opencv/opencv)  
 - Caffe 1.0 (https://github.com/BVLC/caffe)  
 - CUDA 9.1 (https://developer.nvidia.com/cuda-downloads)  
+- Qt5 / Qt Creator 4 (https://www.qt.io/download)
   
 *The mentioned versions are recommended*  
   
@@ -13,10 +14,13 @@ Fingerprint extraction module for DBOX
 2. Include the library and header files to your own application  
 3. Copy the 'core' folder to your root project directory  
   
+  *This library supports QThread*
+  
+  <br />
   
 **APIs:**  
 ```cpp  
-void loadInput(const cv::Mat &imgOriginal, const cv::Mat &imgSkeleton, const cv::Mat &imgInvertedSkeleton, const cv::Mat &orientationMap, int fpQuality);  
+void loadInput(const cv::Mat &imgOriginal, const cv::Mat &imgSkeleton, const cv::Mat &orientationMap, int fpQuality = 100, const cv::Mat &imgInvertedSkeleton = cv::Mat(0,0,CV_8UC1));  
   
 void start();  
 ```  
@@ -30,6 +34,7 @@ void setFeatures(bool useOrientationFixer, bool useVariableBlockSize);
 void setCaffeFiles(CAFFE_FILES extractionFiles);  
 ``` 
   
+  <br />
   
 **SIGNALS:**  
 ```cpp  
