@@ -42,12 +42,12 @@ void Extraction::clean()
     this->durations.isoConverter = 0;
 }
 
-void Extraction::loadInput(const cv::Mat &imgOriginal, const cv::Mat &imgSkeleton, const cv::Mat &orientationMap, int fpQuality, const cv::Mat &imgInvertedSkeleton)
+void Extraction::loadInput(cv::Mat imgOriginal, cv::Mat imgSkeleton, cv::Mat orientationMap, int fpQuality, cv::Mat imgInvertedSkeleton)
 {
-    this->imgOriginal = imgOriginal;
-    this->imgSkeleton = imgSkeleton;
-    this->imgInvertedSkeleton = imgInvertedSkeleton;
-    this->orientationMap = orientationMap;
+    this->imgOriginal = imgOriginal.clone();
+    this->imgSkeleton = imgSkeleton.clone();
+    this->imgInvertedSkeleton = imgInvertedSkeleton.clone();
+    this->orientationMap = orientationMap.clone();
     this->fpQuality = fpQuality;
 
     if (this->imgOriginal.type() != CV_8UC1) this->imgOriginal.convertTo(this->imgOriginal, CV_8UC1);
