@@ -31,13 +31,12 @@ public:
     Extraction();
 
     //required
-    void loadInput(cv::Mat imgOriginal, cv::Mat imgSkeleton, cv::Mat orientationMap, int fpQuality = 100, cv::Mat imgInvertedSkeleton = cv::Mat(0,0,CV_8UC1));
+    void loadInput(cv::Mat imgOriginal, cv::Mat imgSkeleton, cv::Mat orientationMap, int fpQuality = 100, cv::Mat qualityMap = cv::Mat(0,0,CV_8UC1), cv::Mat imgInvertedSkeleton = cv::Mat(0,0,CV_8UC1));
 
     void run();
 
     //not required
-    void setCaffeFiles(CAFFE_FILES extractionFiles);
-    void setParams(int extractionBlockSize);
+    void setExtractionParams(CAFFE_FILES extractionFiles, int extractionBlockSize);
     void setFeatures(bool useOrientationFixer, bool useVariableBlockSize = false);
 
 private:
@@ -52,6 +51,7 @@ private:
     cv::Mat imgSkeleton;
     cv::Mat imgInvertedSkeleton;
     cv::Mat orientationMap;
+    cv::Mat qualityMap;
     int fpQuality;
 
     CAFFE_FILES extractionFiles;

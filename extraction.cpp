@@ -13,6 +13,8 @@ Extraction::Extraction()
 
     this->neuralChecker.loadModel(this->extractionFiles);
 
+    this->fpQuality = 100;
+
     /* Error Signals:
      * 21 - OrientationFixer: Inverted skeleton not loaded
      *
@@ -42,29 +44,27 @@ void Extraction::clean()
     this->durations.isoConverter = 0;
 }
 
-void Extraction::loadInput(cv::Mat imgOriginal, cv::Mat imgSkeleton, cv::Mat orientationMap, int fpQuality, cv::Mat imgInvertedSkeleton)
+void Extraction::loadInput(cv::Mat imgOriginal, cv::Mat imgSkeleton, cv::Mat orientationMap, int fpQuality, cv::Mat qualityMap, cv::Mat imgInvertedSkeleton)
 {
     this->imgOriginal = imgOriginal.clone();
     this->imgSkeleton = imgSkeleton.clone();
     this->imgInvertedSkeleton = imgInvertedSkeleton.clone();
     this->orientationMap = orientationMap.clone();
+    this->qualityMap = qualityMap.clone();
     this->fpQuality = fpQuality;
 
     if (this->imgOriginal.type() != CV_8UC1) this->imgOriginal.convertTo(this->imgOriginal, CV_8UC1);
     if (this->imgSkeleton.type() != CV_8UC1) this->imgSkeleton.convertTo(this->imgSkeleton, CV_8UC1);
+    if (this->qualityMap.type() != CV_8UC1) this->qualityMap.convertTo(this->qualityMap, CV_8UC1);
     if (this->imgInvertedSkeleton.type() != CV_8UC1) this->imgInvertedSkeleton.convertTo(this->imgInvertedSkeleton, CV_8UC1);
 }
 
-void Extraction::setCaffeFiles(CAFFE_FILES extractionFiles)
+void Extraction::setExtractionParams(CAFFE_FILES extractionFiles, int extractionBlockSize)
 {
     this->extractionFiles = extractionFiles;
+    this->extractionBlockSize = extractionBlockSize;
 
     this->neuralChecker.loadModel(this->extractionFiles);
-}
-
-void Extraction::setParams(int extractionBlockSize)
-{
-    this->extractionBlockSize = extractionBlockSize;
 }
 
 void Extraction::setFeatures(bool useOrientationFixer, bool useVariableBlockSize)
@@ -75,15 +75,15 @@ void Extraction::setFeatures(bool useOrientationFixer, bool useVariableBlockSize
 
 void Extraction::run()
 {
-    //Crossing Number
-    this->crossingNumber.setParams(this->imgSkeleton, this->orientationMap);
+    //CROSSING NUMBER
+    this->crossingNumber.setParams(this->imgSkeleton, this->orientationMap, this->qualityMap);
 
     this->timer.start();
     this->crossingNumber.findMinutiae();
     this->durations.crossingNumber = this->timer.elapsed();
     this->results.minutiae = this->crossingNumber.getMinutiae();
 
-    //Neural Checker
+    //NEURAL CHECKER
     this->neuralChecker.setParams(this->imgOriginal, this->results.minutiae, this->extractionBlockSize, this->useVariableBlockSize);
 
     this->timer.start();
@@ -93,8 +93,8 @@ void Extraction::run()
     this->results.checkedMinutiae = this->neuralChecker.getCheckedMinutiae();
 
     if (this->useOrientationFixer) {
-        //Inverted Crossing Number
-        this->crossingNumber.setParams(this->imgInvertedSkeleton, this->orientationMap);
+        //INVERTED CROSSING NUMBER
+        this->crossingNumber.setParams(this->imgInvertedSkeleton, this->orientationMap, this->qualityMap);
 
         this->timer.start();
         this->crossingNumber.findMinutiae();
@@ -102,7 +102,7 @@ void Extraction::run()
 
         this->invertedMinutiae = this->crossingNumber.getMinutiae();
 
-        //Orietation Fixer
+        //ORIENTATION FIXER
         this->orientationFixer.setParams(this->imgSkeleton, this->imgInvertedSkeleton, this->results.checkedMinutiae, this->invertedMinutiae);
 
         this->timer.start();
@@ -110,16 +110,19 @@ void Extraction::run()
         this->durations.orientationFixer = this->timer.elapsed();
 
         this->results.checkedFixedMinutiae = this->orientationFixer.getFixedMinutiae();
-    }
 
-    //ISO Converter
-    this->isoConverter.load(this->imgOriginal.rows, this->imgOriginal.cols, this->fpQuality, this->results.checkedFixedMinutiae);
+        //ISO CONVERTER
+        this->isoConverter.load(this->imgOriginal.rows, this->imgOriginal.cols, this->fpQuality, this->results.checkedFixedMinutiae);
+    }
+    else {
+        this->isoConverter.load(this->imgOriginal.rows, this->imgOriginal.cols, this->fpQuality, this->results.checkedMinutiae);
+    }
 
     this->timer.start();
     this->results.minutiaeISO = this->isoConverter.convert();
     this->durations.isoConverter = this->timer.elapsed();
 
-    //Signals
+    //SIGNALS
     emit extractionResultsSignal(this->results);
     emit minutiaeVectorDoneSignal(this->results.checkedMinutiae);
     emit ISOTemplateDoneSignal(this->results.minutiaeISO);
