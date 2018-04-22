@@ -10,7 +10,7 @@ class CrossingNumber : public QObject
 public:
     CrossingNumber();
 
-    void setParams(const cv::Mat &imgSkeleton, const cv::Mat &orientationMap, const cv::Mat &qualityMap);
+    void setParams(const cv::Mat &imgSkeleton, const PREPROCESSING_RESULTS &input);
     void findMinutiae();
     void clean();
 
@@ -19,8 +19,7 @@ public:
 private:
 
     cv::Mat imgSkeleton;
-    cv::Mat orientationMap;
-    cv::Mat qualityMap;
+    PREPROCESSING_RESULTS input;
 
     QVector<MINUTIA> minutiae;
 };

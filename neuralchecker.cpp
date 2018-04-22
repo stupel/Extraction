@@ -5,14 +5,12 @@ NeuralChecker::NeuralChecker()
     this->isNetworkLoaded = false;
 }
 
-void NeuralChecker::setParams(const cv::Mat &imgOriginal, const QVector<MINUTIA> &minutiae, int extractionBlockSize, bool useVariableBlockSize)
+void NeuralChecker::setParams(const cv::Mat &imgOriginal, const NEURAL_CHECKER_PARAMS &neuralCheckerParams)
 {
     this->imgOriginal = imgOriginal.clone();
-    this->minutiae = minutiae;
-    this->extractionBlockSize = extractionBlockSize;
-    this->useVariableBlockSize = useVariableBlockSize;
+    this->neuralChecker = neuralCheckerParams;
 
-    cv::copyMakeBorder(this->imgOriginal, this->imgOriginal, this->extractionBlockSize, this->extractionBlockSize, this->extractionBlockSize, this->extractionBlockSize, cv::BORDER_CONSTANT, cv::Scalar(0,0,0));
+    cv::copyMakeBorder(this->imgOriginal, this->imgOriginal, *this->neuralChecker.blockSize, *this->neuralChecker.blockSize, *this->neuralChecker.blockSize, *this->neuralChecker.blockSize, cv::BORDER_CONSTANT, cv::Scalar(0,0,0));
 }
 
 void NeuralChecker::loadModel(const CAFFE_FILES &extractionFiles)
@@ -31,23 +29,20 @@ void NeuralChecker::loadModel(const CAFFE_FILES &extractionFiles)
 void NeuralChecker::check()
 {
 
-#ifdef CPU_ONLY
-    Caffe::set_mode(Caffe::CPU);
-#else
-    Caffe::set_mode(Caffe::GPU);
-#endif
+    if (*this->neuralChecker.cpuOnly) Caffe::set_mode(Caffe::CPU);
+    else Caffe::set_mode(Caffe::GPU);
 
     cv::Mat block;
     std::vector<cv::Mat> blocks;
 
-    for (MINUTIA minutia : this->minutiae) {
+    for (MINUTIA minutia : *this->neuralChecker.minutiaCN) {
 
-        block = this->imgOriginal(cv::Rect(minutia.xy.x() + this->extractionBlockSize/2, minutia.xy.y() + this->extractionBlockSize/2, this->extractionBlockSize, this->extractionBlockSize));
+        block = this->imgOriginal(cv::Rect(minutia.xy.x() + *this->neuralChecker.blockSize/2, minutia.xy.y() + *this->neuralChecker.blockSize/2, *this->neuralChecker.blockSize, *this->neuralChecker.blockSize));
         blocks.push_back(block);
 
-        if (this->useVariableBlockSize) {
+        if (*this->neuralChecker.useVariableBlockSize) {
             for (int i = 1; i <= VARBLOCKITER; i++) {
-                block = this->imgOriginal(cv::Rect(minutia.xy.x() + this->extractionBlockSize/2 - i*VARBLOCKSTEP, minutia.xy.y() + this->extractionBlockSize/2 - i*VARBLOCKSTEP, this->extractionBlockSize + i*VARBLOCKSTEP, this->extractionBlockSize + i*VARBLOCKSTEP));
+                block = this->imgOriginal(cv::Rect(minutia.xy.x() + *this->neuralChecker.blockSize/2 - i*VARBLOCKSTEP, minutia.xy.y() + *this->neuralChecker.blockSize/2 - i*VARBLOCKSTEP, *this->neuralChecker.blockSize+ i*VARBLOCKSTEP, *this->neuralChecker.blockSize + i*VARBLOCKSTEP));
                 blocks.push_back(block);
             }
         }
@@ -69,31 +64,31 @@ void NeuralChecker::check()
     float bestBlock[3] = {0,0,0};
 
     for (std::vector<Prediction> prediction : predictions) {
-        if (useVariableBlockSize) {
+        if (*this->neuralChecker.useVariableBlockSize) {
             if (varBlockIteration > VARBLOCKITER) {
                 varBlockIteration = 0;
 
                 if (bestBlock[0] > bestBlock[1] && bestBlock[0] > bestBlock[2])
-                    this->checkedMinutiae.push_back(MINUTIA{QPoint{this->minutiae.at(i).xy.x(), this->minutiae.at(i).xy.y()}, 0, this->minutiae.at(i).angle, 0});
+                    this->checkedMinutiae.push_back(MINUTIA{QPoint{this->neuralChecker.minutiaCN->at(i).xy.x(), this->neuralChecker.minutiaCN->at(i).xy.y()}, 0, this->neuralChecker.minutiaCN->at(i).angle, 0});
                 else if (bestBlock[1] > bestBlock[0] && bestBlock[1] > bestBlock[2])
-                    this->checkedMinutiae.push_back(MINUTIA{QPoint{this->minutiae.at(i).xy.x(), this->minutiae.at(i).xy.y()}, 1, this->minutiae.at(i).angle, 0});
+                    this->checkedMinutiae.push_back(MINUTIA{QPoint{this->neuralChecker.minutiaCN->at(i).xy.x(), this->neuralChecker.minutiaCN->at(i).xy.y()}, 1, this->neuralChecker.minutiaCN->at(i).angle, 0});
 
                 for (int j = 0; j < 3; j++) bestBlock[j] = 0;
                 i++;
             }
 
-            if (prediction[0].first[0] == 'E') bestBlock[0] += prediction[0].second;
-            else if (prediction[0].first[0] == 'B') bestBlock[1] += prediction[0].second;
+            if (prediction[0].first[0] == 'E' || prediction[0].first[0] == 'e') bestBlock[0] += prediction[0].second;
+            else if (prediction[0].first[0] == 'B' || prediction[0].first[0] == 'b') bestBlock[1] += prediction[0].second;
             else bestBlock[2] += prediction[0].second;
 
             varBlockIteration++;
         }
         else {
-            if (prediction[0].first[0] == 'E' /* && prediction[0].second > 0.9999*/) {
-                this->checkedMinutiae.push_back(MINUTIA{QPoint{this->minutiae.at(i).xy.x(), this->minutiae.at(i).xy.y()}, 0, this->minutiae.at(i).angle, 0});
+            if (prediction[0].first[0] == 'E' || prediction[0].first[0] == 'e' /* && prediction[0].second > 0.9999*/) {
+                this->checkedMinutiae.push_back(MINUTIA{QPoint{this->neuralChecker.minutiaCN->at(i).xy.x(), this->neuralChecker.minutiaCN->at(i).xy.y()}, 0, this->neuralChecker.minutiaCN->at(i).angle, 0});
             }
-            else if (prediction[0].first[0] == 'B' /* && prediction[0].second > 0.9999*/) {
-                this->checkedMinutiae.push_back(MINUTIA{QPoint{this->minutiae.at(i).xy.x(), this->minutiae.at(i).xy.y()}, 1, this->minutiae.at(i).angle, 0});
+            else if (prediction[0].first[0] == 'B' || prediction[0].first[0] == 'b' /* && prediction[0].second > 0.9999*/) {
+                this->checkedMinutiae.push_back(MINUTIA{QPoint{this->neuralChecker.minutiaCN->at(i).xy.x(), this->neuralChecker.minutiaCN->at(i).xy.y()}, 1, this->neuralChecker.minutiaCN->at(i).angle, 0});
             }
             i++;
         }

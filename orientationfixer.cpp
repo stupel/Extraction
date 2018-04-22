@@ -5,10 +5,9 @@ OrientationFixer::OrientationFixer()
 
 }
 
-void OrientationFixer::setParams(const cv::Mat &imgSkeleton, const cv::Mat &imgInvertedSkeleton, const QVector<MINUTIA> &minutiae, const QVector<MINUTIA> &invertedMinutiae)
+void OrientationFixer::setParams(const PREPROCESSING_RESULTS &input, const QVector<MINUTIA> &minutiae, const QVector<MINUTIA> &invertedMinutiae)
 {
-    this->imgSkeleton = imgSkeleton;
-    this->imgInvertedSkeleton = imgInvertedSkeleton;
+    this->input = input;
     this->minutiae = minutiae;
     this->invertedMinutiae = invertedMinutiae;
 }
@@ -18,10 +17,10 @@ void OrientationFixer::fix()
     this->fixedMinutiae = this->minutiae;
 
     this->fixEndings();
-    if (this->imgInvertedSkeleton.cols > 0 && this->imgInvertedSkeleton.rows > 0) {
+    if (this->input.imgSkeletonInverted.cols > 0 && this->input.imgSkeletonInverted.rows > 0) {
         this->fixBifurcations();
     }
-    emit errorSignal(21);
+    emit this->extractionErrorSignal(21);
 }
 
 void OrientationFixer::fixEndings()
@@ -37,8 +36,8 @@ void OrientationFixer::fixEndings()
             // x 0 0
             // 0 x 0
             // 0 0 0
-            centerPixel = this->imgSkeleton.at<uchar>(minutia.xy.y(), minutia.xy.x());
-            incomingPixel = this->imgSkeleton.at<uchar>(minutia.xy.y() - 1, minutia.xy.x()  -1);
+            centerPixel = this->input.imgSkeleton.at<uchar>(minutia.xy.y(), minutia.xy.x());
+            incomingPixel = this->input.imgSkeleton.at<uchar>(minutia.xy.y() - 1, minutia.xy.x() - 1);
             if (centerPixel == 0 && incomingPixel == 0) {
                 minutia.angle += M_PI;
             }
@@ -47,7 +46,7 @@ void OrientationFixer::fixEndings()
             // 0 x 0
             // 0 x 0
             // 0 0 0
-            incomingPixel = this->imgSkeleton.at<uchar>(minutia.xy.y() - 1, minutia.xy.x());
+            incomingPixel = this->input.imgSkeleton.at<uchar>(minutia.xy.y() - 1, minutia.xy.x());
             if(centerPixel == 0 && incomingPixel == 0){
                 minutia.angle += M_PI;
             }
@@ -56,7 +55,7 @@ void OrientationFixer::fixEndings()
             // 0 0 x
             // 0 x 0
             // 0 0 0
-            incomingPixel = this->imgSkeleton.at<uchar>(minutia.xy.y() - 1, minutia.xy.x() + 1);
+            incomingPixel = this->input.imgSkeleton.at<uchar>(minutia.xy.y() - 1, minutia.xy.x() + 1);
             if(centerPixel == 0 && incomingPixel == 0){
                 minutia.angle += M_PI;
             }
@@ -65,7 +64,7 @@ void OrientationFixer::fixEndings()
             // 0 0 0
             // x x 0
             // 0 0 0
-            incomingPixel = this->imgSkeleton.at<uchar>(minutia.xy.y(), minutia.xy.x() - 1);
+            incomingPixel = this->input.imgSkeleton.at<uchar>(minutia.xy.y(), minutia.xy.x() - 1);
             if((centerPixel == 0 && incomingPixel == 0)){
                 if(minutia.angle<=M_PI_2){
                     minutia.angle += M_PI;
@@ -76,7 +75,7 @@ void OrientationFixer::fixEndings()
             // 0 0 0
             // 0 x x
             // 0 0 0
-            incomingPixel = this->imgSkeleton.at<uchar>(minutia.xy.y(), minutia.xy.x() + 1);
+            incomingPixel = this->input.imgSkeleton.at<uchar>(minutia.xy.y(), minutia.xy.x() + 1);
             if((centerPixel == 0 && incomingPixel == 0)){
                 if(minutia.angle>M_PI_2){
                     minutia.angle += M_PI;
@@ -113,8 +112,8 @@ void OrientationFixer::fixBifurcations()
             // 0 0 0
             // 0 x 0
             // x 0 0
-            centerPixel = this->imgInvertedSkeleton.at<uchar>(closestMinutia.xy.y(),closestMinutia.xy.x());
-            incomingPixel = this->imgInvertedSkeleton.at<uchar>(closestMinutia.xy.y()+1,closestMinutia.xy.x()-1);
+            centerPixel = this->input.imgSkeletonInverted.at<uchar>(closestMinutia.xy.y(), closestMinutia.xy.x());
+            incomingPixel = this->input.imgSkeletonInverted.at<uchar>(closestMinutia.xy.y() + 1, closestMinutia.xy.x() - 1);
             if (centerPixel == 0 && incomingPixel == 0) {
                 minutia.angle += M_PI;
             }
@@ -122,7 +121,7 @@ void OrientationFixer::fixBifurcations()
             // 0 0 0
             // 0 x 0
             // 0 x 0
-            incomingPixel = this->imgInvertedSkeleton.at<uchar>(closestMinutia.xy.y()+1,closestMinutia.xy.x());
+            incomingPixel = this->input.imgSkeletonInverted.at<uchar>(closestMinutia.xy.y() + 1, closestMinutia.xy.x());
             if (centerPixel == 0 && incomingPixel == 0) {
                 minutia.angle += M_PI;
             }
@@ -131,7 +130,7 @@ void OrientationFixer::fixBifurcations()
             // 0 0 0
             // 0 x 0
             // 0 0 x
-            incomingPixel = this->imgInvertedSkeleton.at<uchar>(closestMinutia.xy.y() + 1, closestMinutia.xy.x() + 1);
+            incomingPixel = this->input.imgSkeletonInverted.at<uchar>(closestMinutia.xy.y() + 1, closestMinutia.xy.x() + 1);
             if (centerPixel == 0 && incomingPixel == 0) {
                 minutia.angle += M_PI;
             }
@@ -139,7 +138,7 @@ void OrientationFixer::fixBifurcations()
             // 0 0 0
             // x x 0
             // 0 0 0
-            incomingPixel = this->imgInvertedSkeleton.at<uchar>(closestMinutia.xy.y(), closestMinutia.xy.x() - 1);
+            incomingPixel = this->input.imgSkeletonInverted.at<uchar>(closestMinutia.xy.y(), closestMinutia.xy.x() - 1);
             if ((centerPixel == 0 && incomingPixel == 0)) {
                 if (minutia.angle > M_PI_2) {
                     minutia.angle += M_PI;
@@ -149,7 +148,7 @@ void OrientationFixer::fixBifurcations()
             // 0 0 0
             // 0 x x
             // 0 0 0
-            incomingPixel = this->imgInvertedSkeleton.at<uchar>(closestMinutia.xy.y(), closestMinutia.xy.x()+1);
+            incomingPixel = this->input.imgSkeletonInverted.at<uchar>(closestMinutia.xy.y(), closestMinutia.xy.x()+1);
             if ((centerPixel == 0 && incomingPixel == 0)) {
                 if (minutia.angle <= M_PI_2) {
                     minutia.angle += M_PI;

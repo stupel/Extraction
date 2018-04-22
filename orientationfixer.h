@@ -10,7 +10,7 @@ class OrientationFixer : public QObject
 public:
     OrientationFixer();
 
-    void setParams(const cv::Mat &imgSkeleton, const cv::Mat &imgInvertedSkeleton, const QVector<MINUTIA> &minutiae, const QVector<MINUTIA> &invertedMinutiae);
+    void setParams(const PREPROCESSING_RESULTS &input, const QVector<MINUTIA> &minutiae, const QVector<MINUTIA> &invertedMinutiae);
     void fix();
 
     //getNset
@@ -18,8 +18,7 @@ public:
 
 private:
 
-    cv::Mat imgSkeleton;
-    cv::Mat imgInvertedSkeleton;
+    PREPROCESSING_RESULTS input;
     QVector<MINUTIA> minutiae;
     QVector<MINUTIA> invertedMinutiae;
 
@@ -29,7 +28,7 @@ private:
     void fixBifurcations();
 
 signals:
-    void errorSignal(int errorCode);
+    void extractionErrorSignal(int errorCode);
 
 };
 

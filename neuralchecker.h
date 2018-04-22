@@ -15,7 +15,7 @@ public:
     NeuralChecker();
 
     void loadModel(const CAFFE_FILES &extractionFiles);
-    void setParams(const cv::Mat &imgOriginal, const QVector<MINUTIA> &minutiae, int extractionBlockSize, bool useVariableBlockSize);
+    void setParams(const cv::Mat &imgOriginal, const NEURAL_CHECKER_PARAMS &neuralCheckerParams);
     void check();
     void clean();
 
@@ -25,11 +25,8 @@ public:
 private:
 
     cv::Mat imgOriginal;
+    NEURAL_CHECKER_PARAMS neuralChecker;
 
-    int extractionBlockSize;
-    bool useVariableBlockSize;
-
-    QVector<MINUTIA> minutiae;
     QVector<MINUTIA> checkedMinutiae;
 
     ExtractionCaffeNetwork *classifier;

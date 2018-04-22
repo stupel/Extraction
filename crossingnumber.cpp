@@ -5,11 +5,10 @@ CrossingNumber::CrossingNumber()
 
 }
 
-void CrossingNumber::setParams(const cv::Mat &imgSkeleton, const cv::Mat &orientationMap, const cv::Mat &qualityMap)
+void CrossingNumber::setParams(const cv::Mat &imgSkeleton, const PREPROCESSING_RESULTS &input)
 {
     this->imgSkeleton = imgSkeleton;
-    this->orientationMap = orientationMap;
-    this->qualityMap = qualityMap;
+    this->input = input;
 }
 
 void CrossingNumber::findMinutiae()
@@ -29,14 +28,14 @@ void CrossingNumber::findMinutiae()
                         abs((this->imgSkeleton.at<uchar>(y - 1, x + 1)) - (this->imgSkeleton.at<uchar>(y - 1, x))) +
                         abs((this->imgSkeleton.at<uchar>(y - 1, x)) - (this->imgSkeleton.at<uchar>(y - 1, x - 1)));
 
-                if (this->qualityMap.cols > x && this->qualityMap.rows > y) quality = this->qualityMap.at<uchar>(y,x);
+                if (this->input.qualityMap.cols > x && this->input.qualityMap.rows > y) quality = this->input.qualityMap.at<uchar>(y,x);
                 else quality = 100;
 
                 if (cn / 255 / 2 == 1) {
-                    this->minutiae.push_back(MINUTIA{QPoint{x,y}, 0, this->orientationMap.at<float>(y,x) + M_PI_2, quality});
+                    this->minutiae.push_back(MINUTIA{QPoint{x,y}, 0, this->input.orientationMap.at<float>(y,x) + M_PI_2, quality});
                 }
                 else if (cn / 255 / 2 == 3) {
-                    this->minutiae.push_back(MINUTIA{QPoint{x,y}, 1, this->orientationMap.at<float>(y,x) + M_PI_2, quality});
+                    this->minutiae.push_back(MINUTIA{QPoint{x,y}, 1, this->input.orientationMap.at<float>(y,x) + M_PI_2, quality});
                 }
             }
         }
