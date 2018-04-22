@@ -17,9 +17,9 @@ typedef struct extraction_durations {
 } EXTRACTION_DURATIONS;
 
 typedef struct extraction_results {
-    QVector<MINUTIA> minutiae;
-    QVector<MINUTIA> checkedMinutiae;
-    QVector<MINUTIA> checkedFixedMinutiae;
+    QVector<MINUTIA> minutiaeCN;
+    QVector<MINUTIA> minutiaePredicted;
+    QVector<MINUTIA> minutiaePredictedFixed;
     unsigned char * minutiaeISO;
 } EXTRACTION_RESULTS;
 
@@ -30,14 +30,18 @@ class EXTRACTIONSHARED_EXPORT Extraction : public QThread
 public:
     Extraction();
 
-    //required
-    void loadInput(cv::Mat imgOriginal, cv::Mat imgSkeleton, cv::Mat orientationMap, int fpQuality = 100, cv::Mat qualityMap = cv::Mat(0,0,CV_8UC1), cv::Mat imgInvertedSkeleton = cv::Mat(0,0,CV_8UC1));
+    // REQUIRED
+    int loadInput(cv::Mat imgOriginal, cv::Mat imgSkeleton, cv::Mat orientationMap, int fpQuality = 100, cv::Mat qualityMap = cv::Mat(0,0,CV_8UC1), cv::Mat imgSkeletonInverted = cv::Mat(0,0,CV_8UC1));
+    int loadInput(PREPROCESSING_RESULTS preprocessingResults);
+    int loadInput(QMap<QString, PREPROCESSING_RESULTS> preprocessingResults);
 
     void run();
 
-    //not required
-    void setExtractionParams(CAFFE_FILES extractionFiles, int extractionBlockSize);
-    void setFeatures(bool useOrientationFixer, bool useVariableBlockSize = false);
+    // OPTIONAL
+    int setExtractionParams(CAFFE_FILES extractionFiles, int extractionBlockSize);
+    int setFeatures(bool useISOConverter, bool useOrientationFixer = true, bool useVariableBlockSize = false);
+    int setCPUOnly(bool enabled);
+
 
 private:
     CrossingNumber crossingNumber;
@@ -47,31 +51,42 @@ private:
 
     QTime timer;
 
-    cv::Mat imgOriginal;
-    cv::Mat imgSkeleton;
-    cv::Mat imgInvertedSkeleton;
-    cv::Mat orientationMap;
-    cv::Mat qualityMap;
-    int fpQuality;
+    bool extractionIsRunning;
 
-    CAFFE_FILES extractionFiles;
-    int extractionBlockSize;
-    bool useOrientationFixer;
-    bool useVariableBlockSize;
+    // INPUT
+    EXTRACTION_INPUT input;
+    EXTRACTION_PARAMS extractionParams;
+    EXTRACTION_FEATURES extractionFeatures;
 
+    // PARAMS
+    NEURAL_CHECKER_PARAMS neuralCheckerParams;
+
+    // OUTPUT
     EXTRACTION_DURATIONS durations;
     EXTRACTION_RESULTS results;
+    QMap<QString, EXTRACTION_RESULTS> resultsMap;
+    QMap<QString, QVector<MINUTIA>> resultsMinutiaeMap;
+    QMap<QString, unsigned char*> resultsISOMap;
 
-    QVector<MINUTIA> invertedMinutiae;
 
-    bool isExtractionModelLoaded;
+    // PRIVATE FUNCTIONS
+    void startExtraction(const PREPROCESSING_RESULTS &input);
+    void continueExtractionWithNext();
+    void cleanResults();
+    void cleanSequenceResults();
+    void cleanDurations();
 
-    void clean();
+private slots:
+    void extractionError(int errorCode);
+
 
 signals:
     void extractionResultsSignal(EXTRACTION_RESULTS results);
+    void extractionSequenceResultsSignal(QMap<QString, EXTRACTION_RESULTS> results);
     void minutiaeVectorDoneSignal(QVector<MINUTIA> minutiae);
+    void minutiaeVectorMapDoneSignal(QMap<QString, QVector<MINUTIA>> minutiaeMap);
     void ISOTemplateDoneSignal(unsigned char * minutiaeISO);
+    void ISOTemplateMapDoneSignal(QMap<QString, unsigned char *> minutiaeISO);
     void extractionDurationsSignal(EXTRACTION_DURATIONS durations);
     void extractionErrorSignal(int errorCode);
 
