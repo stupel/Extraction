@@ -81,8 +81,8 @@ private slots:
 
 
 signals:
-    void extractionResultsSignal(EXTRACTION_RESULTS results);
-    void extractionSequenceResultsSignal(QMap<QString, EXTRACTION_RESULTS> results);
+    void extractionDoneSignal(EXTRACTION_RESULTS results);
+    void extractionSequenceDoneSignal(QMap<QString, EXTRACTION_RESULTS> results);
     void minutiaeVectorDoneSignal(QVector<MINUTIA> minutiae);
     void minutiaeVectorMapDoneSignal(QMap<QString, QVector<MINUTIA>> minutiaeMap);
     void ISOTemplateDoneSignal(unsigned char * minutiaeISO);

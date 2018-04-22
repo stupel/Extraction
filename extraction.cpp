@@ -199,7 +199,7 @@ void Extraction::continueExtractionWithNext()
         this->extractionIsRunning = false;
 
         if (this->extractionFeatures.useISOConverter) emit this->ISOTemplateMapDoneSignal(this->resultsISOMap);
-        emit this->extractionSequenceResultsSignal(this->resultsMap);
+        emit this->extractionSequenceDoneSignal(this->resultsMap);
         emit this->minutiaeVectorMapDoneSignal(this->resultsMinutiaeMap);
 
         this->cleanSequenceResults();
@@ -262,7 +262,7 @@ void Extraction::startExtraction(const PREPROCESSING_RESULTS &input)
 
     if (!this->input.isSequence) {
         //SIGNALS
-        emit extractionResultsSignal(this->results);
+        emit extractionDoneSignal(this->results);
         emit minutiaeVectorDoneSignal(this->results.minutiaePredicted);
         if (this->extractionFeatures.useISOConverter) emit ISOTemplateDoneSignal(this->results.minutiaeISO);
         emit extractionDurationsSignal(this->durations);
