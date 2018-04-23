@@ -180,32 +180,6 @@ void Extraction::run()
     else this->extractionError(10);
 }
 
-void Extraction::continueExtractionWithNext()
-{
-    // SAVE RESULTS
-    this->resultsMap.insert(this->input.keys[this->input.cnt], this->results);
-    if (this->extractionFeatures.useOrientationFixer) this->resultsMinutiaeMap.insert(this->input.keys[this->input.cnt], this->results.minutiaePredictedFixed);
-    else this->resultsMinutiaeMap.insert(this->input.keys[this->input.cnt], this->results.minutiaePredicted);
-    if (this->extractionFeatures.useISOConverter) this->resultsISOMap.insert(this->input.keys[this->input.cnt], this->results.minutiaeISO);
-
-    this->cleanResults();
-
-    // CONTINUE WITH NEXT
-    if (this->input.cnt < this->input.sequence.size()-1) {
-        this->startExtraction(this->input.sequence.value(this->input.keys[++this->input.cnt]));
-    }
-    // ALL DONE
-    else {
-        this->extractionIsRunning = false;
-
-        if (this->extractionFeatures.useISOConverter) emit this->ISOTemplateMapDoneSignal(this->resultsISOMap);
-        emit this->extractionSequenceDoneSignal(this->resultsMap);
-        emit this->minutiaeVectorMapDoneSignal(this->resultsMinutiaeMap);
-
-        this->cleanSequenceResults();
-    }
-}
-
 void Extraction::startExtraction(const PREPROCESSING_RESULTS &input)
 {
     //CROSSING NUMBER
@@ -260,6 +234,7 @@ void Extraction::startExtraction(const PREPROCESSING_RESULTS &input)
         this->durations.isoConverter += this->timer.elapsed();
     }
 
+    // IF WE HAVE ONLY ONE INPUT
     if (!this->input.isSequence) {
         //SIGNALS
         emit extractionDoneSignal(this->results);
@@ -269,8 +244,34 @@ void Extraction::startExtraction(const PREPROCESSING_RESULTS &input)
 
         this->extractionIsRunning = false;
     }
-    else this->continueExtractionWithNext();
+    // IF WE HAVE MORE INPUTS
+    else {
+        // SAVE RESULTS
+        this->resultsMap.insert(this->input.keys[this->input.cnt], this->results);
+        if (this->extractionFeatures.useOrientationFixer) this->resultsMinutiaeMap.insert(this->input.keys[this->input.cnt], this->results.minutiaePredictedFixed);
+        else this->resultsMinutiaeMap.insert(this->input.keys[this->input.cnt], this->results.minutiaePredicted);
+        if (this->extractionFeatures.useISOConverter) this->resultsISOMap.insert(this->input.keys[this->input.cnt], this->results.minutiaeISO);
 
+        this->cleanResults();
+
+        // EXTRACTION PROGRESS
+        emit this->extractionProgressSignal((int)(this->input.cnt*1.0/(this->input.sequence.size()-1)*100));
+
+        // IF WE EXTRACTED ALL INPUTS
+        if (this->input.cnt == this->input.sequence.size()-1) {
+            this->extractionIsRunning = false;
+
+            if (this->extractionFeatures.useISOConverter) emit this->ISOTemplateMapDoneSignal(this->resultsISOMap);
+            emit this->extractionSequenceDoneSignal(this->resultsMap);
+            emit this->minutiaeVectorMapDoneSignal(this->resultsMinutiaeMap);
+
+            this->cleanSequenceResults();
+        }
+        // ELSE STRAT EXTRACT THE NEXT INPUT
+        else {
+            this->startExtraction(this->input.sequence.value(this->input.keys[++this->input.cnt]));
+        }
+    }
 }
 
 void Extraction::extractionError(int errorCode)

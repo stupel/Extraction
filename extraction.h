@@ -71,7 +71,6 @@ private:
 
     // PRIVATE FUNCTIONS
     void startExtraction(const PREPROCESSING_RESULTS &input);
-    void continueExtractionWithNext();
     void cleanResults();
     void cleanSequenceResults();
     void cleanDurations();
@@ -89,6 +88,7 @@ signals:
     void ISOTemplateMapDoneSignal(QMap<QString, unsigned char *> minutiaeISO);
     void extractionDurationsSignal(EXTRACTION_DURATIONS durations);
     void extractionErrorSignal(int errorCode);
+    void extractionProgressSignal(int progress);
 
 };
 
