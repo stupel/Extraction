@@ -29,13 +29,13 @@ void CrossingNumber::findMinutiae()
                         abs((this->imgSkeleton.at<uchar>(y - 1, x)) - (this->imgSkeleton.at<uchar>(y - 1, x - 1)));
 
                 if (this->input.qualityMap.cols > x && this->input.qualityMap.rows > y) quality = this->input.qualityMap.at<uchar>(y,x);
-                else quality = 100;
+                else quality = 254;
 
                 if (cn / 255 / 2 == 1) {
-                    this->minutiae.push_back(MINUTIA{QPoint{x,y}, 0, this->input.orientationMap.at<float>(y,x) + M_PI_2, quality});
+                    this->minutiae.push_back(MINUTIA{QPoint{x,y}, 0, this->input.orientationMap.at<float>(y,x) + M_PI_2, quality, QPoint{this->input.imgOriginal.cols, this->input.imgOriginal.rows}});
                 }
                 else if (cn / 255 / 2 == 3) {
-                    this->minutiae.push_back(MINUTIA{QPoint{x,y}, 1, this->input.orientationMap.at<float>(y,x) + M_PI_2, quality});
+                    this->minutiae.push_back(MINUTIA{QPoint{x,y}, 1, this->input.orientationMap.at<float>(y,x) + M_PI_2, quality, QPoint{this->input.imgOriginal.cols, this->input.imgOriginal.rows}});
                 }
             }
         }
