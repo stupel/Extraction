@@ -238,8 +238,8 @@ void Extraction::startExtraction(const PREPROCESSING_RESULTS &input)
     if (!this->input.isSequence) {
         //SIGNALS
         emit extractionDoneSignal(this->results);
-        emit minutiaeVectorDoneSignal(this->results.minutiaePredicted);
-        if (this->extractionFeatures.useISOConverter) emit ISOTemplateDoneSignal(this->results.minutiaeISO);
+        emit extractionDoneSignal(this->results.minutiaePredicted);
+        if (this->extractionFeatures.useISOConverter) emit extractionDoneSignal(this->results.minutiaeISO);
         emit extractionDurationsSignal(this->durations);
 
         this->extractionIsRunning = false;
@@ -261,9 +261,9 @@ void Extraction::startExtraction(const PREPROCESSING_RESULTS &input)
         if (this->input.cnt == this->input.sequence.size()-1) {
             this->extractionIsRunning = false;
 
-            if (this->extractionFeatures.useISOConverter) emit this->ISOTemplateMapDoneSignal(this->resultsISOMap);
+            if (this->extractionFeatures.useISOConverter) emit this->extractionSequenceDoneSignal(this->resultsISOMap);
             emit this->extractionSequenceDoneSignal(this->resultsMap);
-            emit this->minutiaeVectorMapDoneSignal(this->resultsMinutiaeMap);
+            emit this->extractionSequenceDoneSignal(this->resultsMinutiaeMap);
 
             this->cleanSequenceResults();
         }
