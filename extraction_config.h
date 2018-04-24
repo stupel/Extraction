@@ -24,6 +24,7 @@ typedef struct minutia {
     int type; // 0-end, 1-bif
     qreal angle; // in radians
     int quality;
+    QPoint imgWH; // image Width, Height
 } MINUTIA;
 #define MINUTIA_DEFINED
 #endif
