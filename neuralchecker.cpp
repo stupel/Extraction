@@ -69,9 +69,9 @@ void NeuralChecker::check()
                 varBlockIteration = 0;
 
                 if (bestBlock[0] > bestBlock[1] && bestBlock[0] > bestBlock[2])
-                    this->checkedMinutiae.push_back(MINUTIA{QPoint{this->neuralChecker.minutiaCN->at(i).xy.x(), this->neuralChecker.minutiaCN->at(i).xy.y()}, 0, this->neuralChecker.minutiaCN->at(i).angle, this->neuralChecker.minutiaCN->at(i).quality});
+                    this->checkedMinutiae.push_back(MINUTIA{QPoint{this->neuralChecker.minutiaCN->at(i).xy.x(), this->neuralChecker.minutiaCN->at(i).xy.y()}, 0, this->neuralChecker.minutiaCN->at(i).angle, this->neuralChecker.minutiaCN->at(i).quality, this->neuralChecker.minutiaCN->at(i).imgWH});
                 else if (bestBlock[1] > bestBlock[0] && bestBlock[1] > bestBlock[2])
-                    this->checkedMinutiae.push_back(MINUTIA{QPoint{this->neuralChecker.minutiaCN->at(i).xy.x(), this->neuralChecker.minutiaCN->at(i).xy.y()}, 1, this->neuralChecker.minutiaCN->at(i).angle, this->neuralChecker.minutiaCN->at(i).quality});
+                    this->checkedMinutiae.push_back(MINUTIA{QPoint{this->neuralChecker.minutiaCN->at(i).xy.x(), this->neuralChecker.minutiaCN->at(i).xy.y()}, 1, this->neuralChecker.minutiaCN->at(i).angle, this->neuralChecker.minutiaCN->at(i).quality, this->neuralChecker.minutiaCN->at(i).imgWH});
 
                 for (int j = 0; j < 3; j++) bestBlock[j] = 0;
                 i++;
@@ -85,10 +85,10 @@ void NeuralChecker::check()
         }
         else {
             if (prediction[0].first[0] == 'E' || prediction[0].first[0] == 'e' /* && prediction[0].second > 0.9999*/) {
-                this->checkedMinutiae.push_back(MINUTIA{QPoint{this->neuralChecker.minutiaCN->at(i).xy.x(), this->neuralChecker.minutiaCN->at(i).xy.y()}, 0, this->neuralChecker.minutiaCN->at(i).angle, this->neuralChecker.minutiaCN->at(i).quality});
+                this->checkedMinutiae.push_back(MINUTIA{QPoint{this->neuralChecker.minutiaCN->at(i).xy.x(), this->neuralChecker.minutiaCN->at(i).xy.y()}, 0, this->neuralChecker.minutiaCN->at(i).angle, this->neuralChecker.minutiaCN->at(i).quality, this->neuralChecker.minutiaCN->at(i).imgWH});
             }
             else if (prediction[0].first[0] == 'B' || prediction[0].first[0] == 'b' /* && prediction[0].second > 0.9999*/) {
-                this->checkedMinutiae.push_back(MINUTIA{QPoint{this->neuralChecker.minutiaCN->at(i).xy.x(), this->neuralChecker.minutiaCN->at(i).xy.y()}, 1, this->neuralChecker.minutiaCN->at(i).angle, this->neuralChecker.minutiaCN->at(i).quality});
+                this->checkedMinutiae.push_back(MINUTIA{QPoint{this->neuralChecker.minutiaCN->at(i).xy.x(), this->neuralChecker.minutiaCN->at(i).xy.y()}, 1, this->neuralChecker.minutiaCN->at(i).angle, this->neuralChecker.minutiaCN->at(i).quality, this->neuralChecker.minutiaCN->at(i).imgWH});
             }
             i++;
         }
