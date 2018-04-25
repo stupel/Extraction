@@ -203,7 +203,7 @@ void Extraction::startExtraction(const PREPROCESSING_RESULTS &input)
 
     this->results.minutiaePredicted = this->neuralChecker.getCheckedMinutiae();
 
-    if (this->extractionFeatures.useOrientationFixer) {
+    if (this->extractionFeatures.useOrientationFixer) {        
         //INVERTED CROSSING NUMBER
         this->crossingNumber.setParams(input.imgSkeletonInverted, input);
 
@@ -221,7 +221,12 @@ void Extraction::startExtraction(const PREPROCESSING_RESULTS &input)
         this->durations.orientationFixer += this->timer.elapsed();
 
         this->results.minutiaePredictedFixed = this->orientationFixer.getFixedMinutiae();
+
+        this->orientationFixer.finalizeDirections(this->results.minutiaePredictedFixed);
     }
+
+    this->orientationFixer.finalizeDirections(this->results.minutiaeCN);
+    this->orientationFixer.finalizeDirections(this->results.minutiaePredicted);
 
     //ISO CONVERTER
     if (this->extractionFeatures.useISOConverter) {
@@ -236,6 +241,7 @@ void Extraction::startExtraction(const PREPROCESSING_RESULTS &input)
 
     // IF WE HAVE ONLY ONE INPUT
     if (!this->input.isSequence) {
+
         //SIGNALS
         emit extractionDoneSignal(this->results);
         emit extractionDoneSignal(this->results.minutiaePredicted);

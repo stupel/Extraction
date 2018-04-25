@@ -11,6 +11,7 @@ public:
     OrientationFixer();
 
     void setParams(const PREPROCESSING_RESULTS &input, const QVector<MINUTIA> &minutiae, const QVector<MINUTIA> &invertedMinutiae);
+    void finalizeDirections(QVector<MINUTIA> &minutiae);
     void fix();
 
     //getNset
