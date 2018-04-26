@@ -62,15 +62,15 @@ Usage:
 ```cpp  
 void extractionDoneSignal(EXTRACTION_RESULTS results);  
   
-void minutiaeVectorDoneSignal(QVector<MINUTIA> minutiae);  
+void extractionDoneSignal(QVector<MINUTIA> minutiae);  
   
-void ISOTemplateDoneSignal(unsigned char* minutiaeISO);  
+void extractionDoneSignal(unsigned char* minutiaeISO);  
   
 void extractionSequenceDoneSignal(QMap<QString, EXTRACTION_RESULTS> results);
 
-void minutiaeVectorMapDoneSignal(QMap<QString, QVector<MINUTIA>> minutiaeMap);  
+void extractionSequenceDoneSignal(QMap<QString, QVector<MINUTIA>> minutiaeMap);  
 
-void ISOTemplateMapDoneSignal(QMap<QString, unsigned char *> minutiaeISO);  
+void extractionSequenceDoneSignal(QMap<QString, unsigned char *> minutiaeISO);  
   
 void extractionDurationsSignal(EXTRACTION_DURATIONS durations);  
   
