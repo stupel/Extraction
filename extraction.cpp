@@ -244,7 +244,8 @@ void Extraction::startExtraction(const PREPROCESSING_RESULTS &input)
 
         //SIGNALS
         emit extractionDoneSignal(this->results);
-        emit extractionDoneSignal(this->results.minutiaePredicted);
+        if (this->extractionFeatures.useOrientationFixer) emit extractionDoneSignal(this->results.minutiaePredictedFixed);
+        else emit extractionDoneSignal(this->results.minutiaePredicted);
         if (this->extractionFeatures.useISOConverter) emit extractionDoneSignal(this->results.minutiaeISO);
         emit extractionDurationsSignal(this->durations);
 
