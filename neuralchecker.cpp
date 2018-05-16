@@ -51,12 +51,12 @@ void NeuralChecker::check()
     std::vector<std::vector<Prediction>> predictions;
 
     //Use Batch
-    predictions = this->classifier->classifyBatch(blocks, 3);
+    //predictions = this->classifier->classifyBatch(blocks, 3);
 
     //Without Batch
-    /*for (int i = 0; i < blocks.size(); i++) {
+    for (int i = 0; i < blocks.size(); i++) {
         predictions.push_back(this->classifier->classify(blocks[i]));
-    }*/
+    }
 
     int i = 0;
 
@@ -84,10 +84,10 @@ void NeuralChecker::check()
             varBlockIteration++;
         }
         else {
-            if (prediction[0].first[0] == 'E' || prediction[0].first[0] == 'e' /* && prediction[0].second > 0.9999*/) {
+            if ((prediction[0].first[0] == 'E' || prediction[0].first[0] == 'e') /*&& prediction[0].second > 0.9999 && this->neuralChecker.minutiaCN->at(i).quality > 26*/) {
                 this->checkedMinutiae.push_back(MINUTIA{QPoint{this->neuralChecker.minutiaCN->at(i).xy.x(), this->neuralChecker.minutiaCN->at(i).xy.y()}, 0, this->neuralChecker.minutiaCN->at(i).angle, this->neuralChecker.minutiaCN->at(i).quality, this->neuralChecker.minutiaCN->at(i).imgWH});
             }
-            else if (prediction[0].first[0] == 'B' || prediction[0].first[0] == 'b' /* && prediction[0].second > 0.9999*/) {
+            else if ((prediction[0].first[0] == 'B' || prediction[0].first[0] == 'b')  /*&& prediction[0].second > 0.9999 && this->neuralChecker.minutiaCN->at(i).quality > 26*/) {
                 this->checkedMinutiae.push_back(MINUTIA{QPoint{this->neuralChecker.minutiaCN->at(i).xy.x(), this->neuralChecker.minutiaCN->at(i).xy.y()}, 1, this->neuralChecker.minutiaCN->at(i).angle, this->neuralChecker.minutiaCN->at(i).quality, this->neuralChecker.minutiaCN->at(i).imgWH});
             }
             i++;

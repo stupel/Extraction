@@ -312,10 +312,11 @@ std::vector<std::vector<Prediction>> ExtractionCaffeNetwork::classifyBatch(const
         std::vector<int> maxN = caffeArgmax(output, num_classes);
         std::vector<Prediction> prediction_single;
         for (int i = 0; i < num_classes; ++i) {
-          int idx = maxN[i];
-          prediction_single.push_back(std::make_pair(this->labels_[idx], output[idx]));
+              int idx = maxN[i];
+              prediction_single.push_back(std::make_pair(this->labels_[idx], output[idx]));
         }
         predictions.push_back(std::vector<Prediction>(prediction_single));
+        output_batch.clear();
     }
     return predictions;
 }
