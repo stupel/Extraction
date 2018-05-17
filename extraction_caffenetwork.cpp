@@ -137,7 +137,6 @@ std::vector<float> ExtractionCaffeNetwork::predict(const cv::Mat& img)
     this->wrapInputLayer(&input_channels);
 
     this->preprocess(img, &input_channels);
-
     Blob<float>* output_layer = this->net_->output_blobs()[0];
     const float* begin = output_layer->cpu_data();
     const float* end = begin + output_layer->channels();
@@ -246,6 +245,7 @@ void ExtractionCaffeNetwork::preprocessBatch(const vector<cv::Mat> imgs, std::ve
         /* This operation will write the separate BGR planes directly to the
          * input layer of the network because it is wrapped by the cv::Mat
          * objects in input_channels. */
+        sample_normalized /= 255.0;
         cv::split(sample_normalized, *input_channels);
 
 //        CHECK(reinterpret_cast<float*>(input_channels->at(0).data)
