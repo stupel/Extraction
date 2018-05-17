@@ -51,12 +51,13 @@ void NeuralChecker::check()
     std::vector<std::vector<Prediction>> predictions;
 
     //Use Batch
-    //predictions = this->classifier->classifyBatch(blocks, 3);
+    predictions = this->classifier->classifyBatch(blocks, 3);
 
     //Without Batch
-    for (int i = 0; i < blocks.size(); i++) {
+    /*for (int i = 0; i < blocks.size(); i++) {
+        //qDebug() << "output: " << i+1;
         predictions.push_back(this->classifier->classify(blocks[i]));
-    }
+    }*/
 
     int i = 0;
 
